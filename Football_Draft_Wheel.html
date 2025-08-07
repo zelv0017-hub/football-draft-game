@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Football Draft Powerup Wheel</title>
+  <style>
+    body { text-align: center; font-family: Arial, sans-serif; background-color: #111; color: white; }
+    canvas { background: #222; margin-top: 20px; }
+    button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Football Draft Powerup & Category Wheel</h1>
+  <canvas id="wheelCanvas" width="600" height="600"></canvas><br>
+  <button onclick="spinWheel()">SPIN</button>
+  <h2 id="result"></h2>
+
+  <script>
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const radius = canvas.width / 2;
+    const categories = ['Mirror Steal (P)', 'Mirror Steal (P)', 'Mirror Steal (P)', 'Wheel of Fate (P)', 'Wheel of Fate (P)', 'Wheel of Fate (P)', 'Skip (P)', 'Skip (P)', 'Skip (P)', 'GOAT Override (P)', 'GOAT Override (P)', 'GOAT Override (P)', 'Position Lock (P)', 'Position Lock (P)', 'Position Lock (P)', 'Position Lock (P)', 'Position Lock (P)', 'Position Lock (P)', 'Position Change (P)', 'Position Change (P)', 'Position Change (P)', 'Position Change (P)', 'Lock One Position(P)', 'Lock One Position(P)', 'Lock One Position(P)', 'Lock One Position(P)', 'Lock One Position(P)', 'Reroll (P)', 'Reroll (P)', 'Reroll (P)', 'Reroll (P)', 'Reroll (P)', 'Reroll (P)', 'Upgrade or Downgrade (P)', 'Upgrade or Downgrade (P)', 'Wheel Sabotage (P)', 'Wheel Sabotage (P)', 'Wheel Sabotage(P)', 'Wheel Sabotage(P)', 'Wheel Sabotage(P)', 'Time Traveller(P)', 'Time Traveller(P)', 'Time Traveller(P)', 'Time Traveller(P)', 'Time Traveller(P)', 'One Roll, Two Picks (P)', 'One Roll, Two Picks (P)', 'One Roll, Two Picks (P)', 'Remove a Player (P)', 'Remove a Player (P)', 'Remove a Player (P)', 'Remove a Player (P)', 'Remove a Player (P)', 'Pick for Another Player (P)', 'Pick for Another Player(P)', 'Pick for Another Player(P)', 'Forced Trade (P)', 'Forced Trade(P)', 'Forced Trade(P)', 'Forced Trade(P)', 'Pick a player with the same birthday as you', 'Dead', 'Played for both rival clubs', 'Golden Glove Winner', 'Made 100+ international appearances', "Won a Ballon d'Or but not a World Cup", 'From a nation that’s never qualified for the World Cup', 'Caribbean international', 'Sunday League vibes', 'Won golden boy award', 'Broke transfer record at the time', 'Played with Messi and Ronaldo', 'Played in El Clásico', 'Played in 3 or more World Cups', 'More assists than goals', 'Scored in a UCL Final', 'Lose ST Spin Wheel Again', 'All time World Cup winner'];
+
+    let anglePerSegment = (2 * Math.PI) / categories.length;
+    let startAngle = 0;
+    let spinning = false;
+
+    function drawWheel() {
+      for (let i = 0; i < categories.length; i++) {
+        const angle = startAngle + i * anglePerSegment;
+        ctx.beginPath();
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, angle, angle + anglePerSegment);
+        ctx.fillStyle = `hsl(${(i * 360 / categories.length)}, 70%, 50%)`;
+        ctx.fill();
+        ctx.stroke();
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + anglePerSegment / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#fff";
+        ctx.font = "12px Arial";
+        ctx.fillText(categories[i], radius - 10, 0);
+        ctx.restore();
+      }
+    }
+
+    function spinWheel() {
+      if (spinning) return;
+      spinning = true;
+      let spinAngle = Math.random() * 3000 + 2000;
+      let duration = 3000;
+      let start = null;
+
+      function animate(timestamp) {
+        if (!start) start = timestamp;
+        const elapsed = timestamp - start;
+        const rotation = easeOut(elapsed, 0, spinAngle, duration);
+        startAngle = (rotation % 360) * Math.PI / 180;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawWheel();
+        if (elapsed < duration) {
+          requestAnimationFrame(animate);
+        } else {
+          const finalAngle = (rotation % 360) * Math.PI / 180;
+          const index = Math.floor((categories.length - ((finalAngle / (2 * Math.PI)) * categories.length)) % categories.length);
+          document.getElementById('result').innerText = `🎯 Result: ${categories[index]}`;
+          spinning = false;
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function easeOut(t, b, c, d) {
+      t /= d;
+      t--;
+      return c * (t * t * t + 1) + b;
+    }
+
+    drawWheel();
+  </script>
+</body>
+</html>
